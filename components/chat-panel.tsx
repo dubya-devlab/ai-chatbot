@@ -10,6 +10,7 @@ import { ChatShareDialog } from '@/components/chat-share-dialog'
 import { useAIState, useActions, useUIState } from 'ai/rsc'
 import type { AI } from '@/lib/chat/actions'
 import { nanoid } from 'nanoid'
+import { UserMessage } from './stocks/message'
 
 export interface ChatPanelProps {
   id?: string
@@ -60,7 +61,7 @@ export function ChatPanel({
     message: 'I have some renovation ideas and would like professional input.'
   },
   {
-    heading: 'Curious About Project Timelines?',
+    heading: 'Interested in the Service that we offer?',
     subheading: 'Get estimated schedules for your renovation',
     message: 'Can you give me a rough timeline for a bathroom remodel?'
   }
