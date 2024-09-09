@@ -35,27 +35,37 @@ export function ChatPanel({
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
 
   const exampleMessages = [
-    {
-      heading: 'What are the',
-      subheading: 'trending memecoins today?',
-      message: `What are the trending memecoins today?`
-    },
-    {
-      heading: 'What is the price of',
-      subheading: '$DOGE right now?',
-      message: 'What is the price of $DOGE right now?'
-    },
-    {
-      heading: 'I would like to buy',
-      subheading: '42 $DOGE',
-      message: `I would like to buy 42 $DOGE`
-    },
-    {
-      heading: 'What are some',
-      subheading: `recent events about $DOGE?`,
-      message: `What are some recent events about $DOGE?`
-    }
-  ]
+  {
+    heading: 'Need an Estimate?',
+    subheading: 'Schedule an onsite or video estimate with a Walls Home Pro',
+    message: `I'd like to schedule an onsite estimate for my home improvement project.`
+  },
+  {
+    heading: 'Interested in a Home Maintenance Plan?',
+    subheading: 'Customize a plan that works best for your home!',
+    message: 'I want to learn more about your home maintenance plan.'
+  },
+  {
+    heading: 'Need an Estimate FAST?',
+    subheading: 'Request a quick online estimate',
+    message: `I need a quick estimate.`
+  },
+  {
+    heading: 'Have a DIY Question?',
+    subheading: 'Get guidance from a Live Expert via video chat',
+    message: 'I have a minor repair issue and need some professional advice.'
+  },
+  {
+    heading: 'Planning a Project?',
+    subheading: 'Discuss your ideas with a Home Pro',
+    message: 'I have some renovation ideas and would like professional input.'
+  },
+  {
+    heading: 'Curious About Project Timelines?',
+    subheading: 'Get estimated schedules for your renovation',
+    message: 'Can you give me a rough timeline for a bathroom remodel?'
+  }
+]
 
   return (
     <div className="fixed inset-x-0 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% duration-300 ease-in-out animate-in dark:from-background/10 dark:from-10% dark:to-background/80 peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]">
