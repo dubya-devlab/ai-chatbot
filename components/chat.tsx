@@ -11,6 +11,7 @@ import { Message, Session } from '@/lib/types'
 import { usePathname, useRouter } from 'next/navigation'
 import { useScrollAnchor } from '@/lib/hooks/use-scroll-anchor'
 import { toast } from 'sonner'
+import { processWithN8NAgent } from '@/lib/n8n-agent'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -23,7 +24,7 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
   const router = useRouter()
   const path = usePathname()
   const [input, setInput] = useState('')
-  const [messages] = useUIState()
+  const [messages, setMessages] = useUIState()
   const [aiState] = useAIState()
 
   const [_, setNewChatId] = useLocalStorage('newChatId', id)
@@ -31,7 +32,7 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
   useEffect(() => {
     if (session?.user) {
       if (!path.includes('chat') && messages.length === 1) {
-        window.history.replaceState({}, '', `/chat/${id}`)
+        window.history.replaceState({}, '', )
       }
     }
   }, [id, path, session?.user, messages])
@@ -49,12 +50,37 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
 
   useEffect(() => {
     missingKeys.map(key => {
-      toast.error(`Missing ${key} environment variable!`)
+      toast.error()
     })
   }, [missingKeys])
 
   const { messagesRef, scrollRef, visibilityRef, isAtBottom, scrollToBottom } =
     useScrollAnchor()
+
+  const handleSubmit = async (value: string) => {
+    // Process with n8n agent
+    try {
+      const n8nResponse = await processWithN8NAgent(value)
+      console.log('N8N Agent Response:', n8nResponse)
+      
+      // Add user message
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { id: Date.now().toString(), role: 'user', content: value }
+      ])
+
+      // Add n8n agent response
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { id: (Date.now() + 1).toString(), role: 'assistant', content: n8nResponse }
+      ])
+
+      scrollToBottom()
+    } catch (error) {
+      console.error('Error processing with n8n agent:', error)
+      toast.error('Error processing your request. Please try again.')
+    }
+  }
 
   return (
     <div
@@ -78,6 +104,7 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
         setInput={setInput}
         isAtBottom={isAtBottom}
         scrollToBottom={scrollToBottom}
+        onSubmit={handleSubmit}
       />
     </div>
   )
