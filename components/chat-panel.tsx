@@ -35,7 +35,7 @@ export interface ChatPanelProps
 const exampleMessages = [
   {
     heading: 'Explain technical concepts',
-    message: 
+    message: 'What is a "serverless function"?'
   },
   {
     heading: 'Summarize an article',
@@ -43,11 +43,11 @@ const exampleMessages = [
   },
   {
     heading: 'Draft an email',
-    message: 
+    message: 'Draft a professional email to a client explaining a project delay'
   },
   {
     heading: 'Solve a coding problem',
-    message: 
+    message: 'How do I reverse a string in Python?'
   }
 ]
 
@@ -100,7 +100,7 @@ export function ChatPanel({
               >
                 <div className="text-sm font-semibold">{example.heading}</div>
                 <div className="text-sm text-zinc-600">
-                  {example.subheading}
+                  {example.message}
                 </div>
               </div>
             ))}
