@@ -27,3 +27,13 @@ export type ServerActionResult<Result> = Promise<
       error: string
     }
 >
+
+export type Session = {
+  user: {
+    id: string
+    name?: string | null
+    email?: string | null
+    image?: string | null
+  }
+  expires: string
+}
