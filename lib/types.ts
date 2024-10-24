@@ -1,18 +1,25 @@
-import { CoreMessage } from 'ai'
+import { ReactNode } from 'react'
 
-export type Message = CoreMessage & {
+export type Message = {
   id: string
+  content: string
+  role: 'system' | 'user' | 'assistant'
+  name?: string
 }
 
-export interface Chat extends Record<string, any> {
+export type Chat = {
   id: string
   title: string
-  createdAt: Date
   userId: string
-  path: string
+  createdAt: Date
   messages: Message[]
-  sharePath?: string
+  path: string
 }
+
+export type UIState = {
+  id: string
+  display: ReactNode
+}[]
 
 export type ServerActionResult<Result> = Promise<
   | Result
@@ -20,22 +27,3 @@ export type ServerActionResult<Result> = Promise<
       error: string
     }
 >
-
-export interface Session {
-  user: {
-    id: string
-    email: string
-  }
-}
-
-export interface AuthResult {
-  type: string
-  message: string
-}
-
-export interface User extends Record<string, any> {
-  id: string
-  email: string
-  password: string
-  salt: string
-}

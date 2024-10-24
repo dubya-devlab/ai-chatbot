@@ -1,18 +1,18 @@
 import { type UseChatHelpers } from 'ai/react'
-
-import { Button } from '@/components/ui/button'
-import { PromptForm } from '@/components/prompt-form'
-import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
-import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
-import { useUIState } from 'ai/rsc'
-import { ChatShareDialog } from '@/components/chat-share-dialog'
+import { useUIState, useAIState } from 'ai/rsc'
 import { useState } from 'react'
-import { shareChat } from '@/app/actions'
-import { useAIState } from 'ai/rsc'
-import { FooterText } from '@/components/footer'
 import { nanoid } from 'nanoid'
-import { UserMessage } from '@/components/llm-stock/stocks'
-import { cn } from '@/lib/utils'
+
+import { Button } from './ui/button'
+import { PromptForm } from './prompt-form'
+import { ButtonScrollToBottom } from './button-scroll-to-bottom'
+import { IconRefresh, IconShare, IconStop } from './ui/icons'
+import { ChatShareDialog } from './chat-share-dialog'
+import { FooterText } from './footer'
+import { UserMessage } from './message'
+import { cn } from '../lib/utils'
+import { shareChat } from '../app/actions'
+import { UIState } from '../lib/types'
 
 export interface ChatPanelProps
   extends Pick<
@@ -34,20 +34,20 @@ export interface ChatPanelProps
 
 const exampleMessages = [
   {
-    heading: 'Explain technical concepts',
-    message: 'What is a "serverless function"?'
+    heading: 'Schedule an Estimate',
+    message: 'I need an estimate for a bathroom remodel.'
   },
   {
-    heading: 'Summarize an article',
-    message: 'Summarize the following article for me: [Insert article text or URL]'
+    heading: 'Get Quick Quote',
+    message: 'How much would it cost to replace a kitchen faucet?'
   },
   {
-    heading: 'Draft an email',
-    message: 'Draft a professional email to a client explaining a project delay'
+    heading: 'Home Improvement Advice',
+    message: 'What improvements would add the most value to my home?'
   },
   {
-    heading: 'Solve a coding problem',
-    message: 'How do I reverse a string in Python?'
+    heading: 'Schedule a Repair',
+    message: 'I need to schedule a repair for a leaking pipe.'
   }
 ]
 
@@ -57,7 +57,7 @@ export function ChatPanel({
   isLoading,
   append,
   reload,
-  messages,
+  messages = [], // Add default empty array
   stop,
   input,
   setInput,
@@ -87,7 +87,7 @@ export function ChatPanel({
                   index > 1 && 'hidden md:block'
                 )}
                 onClick={async () => {
-                  setUIState(currentMessages => [
+                  setUIState((currentMessages: UIState) => [
                     ...currentMessages,
                     {
                       id: nanoid(),
@@ -126,7 +126,7 @@ export function ChatPanel({
                     chat={{
                       id,
                       title,
-                      messages: aiState.messages
+                      messages: aiState?.messages ?? []
                     }}
                   />
                 </>
