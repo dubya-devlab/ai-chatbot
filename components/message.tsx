@@ -1,28 +1,122 @@
+import { IconOpenAI, IconUser } from './ui/icons'
 import { cn } from '@/lib/utils'
-import { IconOpenAI } from '@/components/ui/icons'
-import { Spinner } from '@/components/spinner'
+import { CodeBlock } from './ui/codeblock'
+import { MemoizedReactMarkdown } from './markdown'
+import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import { StreamableValue } from 'ai/rsc'
+import { useStreamableText } from '@/lib/hooks/use-streamable-text'
+import { DataViz, ActionCard, MediaCard, FormBuilder } from './ui'
+import { Spinner } from './spinner'
 
+interface UIComponent {
+  type: 'data-viz' | 'action-card' | 'media-card' | 'form'
+  props: any
+}
+
+export function UserMessage({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="group relative flex items-start md:-ml-12">
+      <div className="flex size-[25px] shrink-0 select-none items-center justify-center rounded-md border bg-background shadow-sm">
+        <IconUser />
+      </div>
+      <div className="ml-4 flex-1 space-y-2 overflow-hidden pl-2">
+        {children}
+      </div>
+    </div>
+  )
+}
 
 export function BotMessage({
   content,
-  className,
-  ...props
+  className
 }: {
-  content: string
+  content: string | StreamableValue<string>
   className?: string
-} & React.ComponentProps<'div'>) {
+}) {
+  const text = useStreamableText(content)
+  let uiComponents: UIComponent[] = []
+
+  try {
+    // Check if the content includes UI components
+    if (text.includes('```ui-component')) {
+      const matches = text.match(/```ui-component\n([\s\S]*?)```/g)
+      if (matches) {
+        uiComponents = matches.map(match => {
+          const json = match.replace('```ui-component\n', '').replace('```', '')
+          return JSON.parse(json)
+        })
+      }
+    }
+  } catch (error) {
+    console.error('Error parsing UI components:', error)
+  }
+
+  // Remove UI component blocks from the text
+  const cleanText = text.replace(/```ui-component\n[\s\S]*?```/g, '')
+
   return (
-    <div
-      className={cn('group relative flex items-start md:pl-12', className)}
-      {...props}
-    >
-      <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow-sm bg-white">
+    <div className={cn('group relative flex items-start md:-ml-12', className)}>
+      <div className="flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm">
         <IconOpenAI />
       </div>
-      <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">
-        <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0">
-          {content}
-        </div>
+      <div className="ml-4 flex-1 space-y-4 overflow-hidden px-1">
+        <MemoizedReactMarkdown
+          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+          remarkPlugins={[remarkGfm, remarkMath]}
+          components={{
+            p({ children }) {
+              return <p className="mb-2 last:mb-0">{children}</p>
+            },
+            code({ node, inline, className, children, ...props }) {
+              if (children.length) {
+                if (children[0] == '▍') {
+                  return (
+                    <span className="mt-1 animate-pulse cursor-default">▍</span>
+                  )
+                }
+
+                children[0] = (children[0] as string).replace('`▍`', '▍')
+              }
+
+              const match = /language-(\w+)/.exec(className || '')
+
+              if (inline) {
+                return (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                )
+              }
+
+              return (
+                <CodeBlock
+                  key={Math.random()}
+                  language={(match && match[1]) || ''}
+                  value={String(children).replace(/\n$/, '')}
+                  {...props}
+                />
+              )
+            }
+          }}
+        >
+          {cleanText}
+        </MemoizedReactMarkdown>
+
+        {uiComponents.map((component, index) => {
+          switch (component.type) {
+            case 'data-viz':
+              return <DataViz key={index} {...component.props} />
+            case 'action-card':
+              return <ActionCard key={index} {...component.props} />
+            case 'media-card':
+              return <MediaCard key={index} {...component.props} />
+            case 'form':
+              return <FormBuilder key={index} {...component.props} />
+            default:
+              return null
+          }
+        })}
       </div>
     </div>
   )
@@ -30,95 +124,47 @@ export function BotMessage({
 
 export function BotCard({
   children,
-  className,
-  ...props
+  showAvatar = true
 }: {
   children: React.ReactNode
-  className?: string
-} & React.ComponentProps<'div'>) {
+  showAvatar?: boolean
+}) {
   return (
-    <div
-      className={cn(
-        'group relative flex items-start md:pl-12',
-        className
-      )}
-      {...props}
-    >
-      <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow-sm bg-white">
+    <div className="group relative flex items-start md:-ml-12">
+      <div
+        className={cn(
+          'flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm',
+          !showAvatar && 'invisible'
+        )}
+      >
         <IconOpenAI />
       </div>
-      <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">
-        {children}
-      </div>
+      <div className="ml-4 flex-1 pl-2">{children}</div>
     </div>
   )
 }
 
 export function SystemMessage({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-2 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-      <span className="bg-zinc-100 dark:bg-zinc-800 rounded-lg px-2 py-1">
-        {children}
-      </span>
-    </div>
-  )
-}
-
-export function UserMessage({
-  children,
-  className,
-  ...props
-}: {
-  children: React.ReactNode
-  className?: string
-} & React.ComponentProps<'div'>) {
-  return (
     <div
-      className={cn(
-        'group relative flex items-start md:pl-12',
-        className
-      )}
-      {...props}
+      className={
+        'mt-2 flex items-center justify-center gap-2 text-xs text-gray-500'
+      }
     >
-      <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow-sm bg-white">
-        <UserIcon />
-      </div>
-      <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">
-        <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0">
-          {children}
-        </div>
-      </div>
+      <div className={'max-w-[600px] flex-initial p-2'}>{children}</div>
     </div>
   )
 }
 
 export function SpinnerMessage() {
   return (
-    <div className="group relative flex items-start md:pl-12">
-      <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow-sm bg-white">
+    <div className="group relative flex items-start md:-ml-12">
+      <div className="flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm">
         <IconOpenAI />
       </div>
-      <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">
+      <div className="ml-4 h-[24px] flex flex-row items-center flex-1 space-y-2 overflow-hidden px-1">
         <Spinner />
       </div>
     </div>
-  )
-}
-
-function UserIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5"
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
   )
 }
