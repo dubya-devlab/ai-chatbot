@@ -1,9 +1,11 @@
+'use client'
+
 import { useState } from 'react'
 import { useActions, useUIState } from 'ai/rsc'
 import { Button } from './button'
 import { Input } from './input'
 import { Label } from './label'
-import type { AI } from '@/lib/chat/actions'
+import type { AI } from '../../lib/chat/actions'
 
 interface FormField {
   label: string

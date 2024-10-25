@@ -44,12 +44,12 @@ export async function authenticate(
 
       return {
         type: 'success',
-        resultCode: ResultCode.UserLoggedIn
+        resultCode: ResultCode.SUCCESS
       }
     } else {
       return {
         type: 'error',
-        resultCode: ResultCode.InvalidCredentials
+        resultCode: ResultCode.INVALID_CREDENTIALS
       }
     }
   } catch (error) {
@@ -58,14 +58,18 @@ export async function authenticate(
         case 'CredentialsSignin':
           return {
             type: 'error',
-            resultCode: ResultCode.InvalidCredentials
+            resultCode: ResultCode.INVALID_CREDENTIALS
           }
         default:
           return {
             type: 'error',
-            resultCode: ResultCode.UnknownError
+            resultCode: ResultCode.ERROR
           }
       }
+    }
+    return {
+      type: 'error',
+      resultCode: ResultCode.ERROR
     }
   }
 }

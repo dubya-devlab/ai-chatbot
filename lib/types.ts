@@ -1,5 +1,12 @@
 import { ReactNode } from 'react'
 
+export type User = {
+  id: string
+  email: string
+  password: string
+  salt: string
+}
+
 export type Message = {
   id: string
   content: string

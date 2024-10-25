@@ -17,7 +17,7 @@ export async function createUser(
   if (existingUser) {
     return {
       type: 'error',
-      resultCode: ResultCode.UserAlreadyExists
+      resultCode: ResultCode.USER_EXISTS
     }
   } else {
     const user = {
@@ -31,7 +31,7 @@ export async function createUser(
 
     return {
       type: 'success',
-      resultCode: ResultCode.UserCreated
+      resultCode: ResultCode.SUCCESS
     }
   }
 }
@@ -72,7 +72,7 @@ export async function signup(
     try {
       const result = await createUser(email, hashedPassword, salt)
 
-      if (result.resultCode === ResultCode.UserCreated) {
+      if (result.resultCode === ResultCode.SUCCESS) {
         await signIn('credentials', {
           email,
           password,
@@ -87,25 +87,25 @@ export async function signup(
           case 'CredentialsSignin':
             return {
               type: 'error',
-              resultCode: ResultCode.InvalidCredentials
+              resultCode: ResultCode.INVALID_CREDENTIALS
             }
           default:
             return {
               type: 'error',
-              resultCode: ResultCode.UnknownError
+              resultCode: ResultCode.ERROR
             }
         }
       } else {
         return {
           type: 'error',
-          resultCode: ResultCode.UnknownError
+          resultCode: ResultCode.ERROR
         }
       }
     }
   } else {
     return {
       type: 'error',
-      resultCode: ResultCode.InvalidCredentials
+      resultCode: ResultCode.INVALID_CREDENTIALS
     }
   }
 }
